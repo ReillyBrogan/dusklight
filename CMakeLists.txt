@@ -248,11 +248,6 @@ elseif (MSVC)
     add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:/utf-8>)
 endif ()
 
-if (DUSK_PACKAGE_INSTALL)
-    include(GNUInstallDirs)
-    list(APPEND GAME_COMPILE_DEFS DUSK_ASSET_DIR=${CMAKE_INSTALL_DATADIR}/dusklight)
-endif ()
-
 include(FetchContent)
 
 # Declare all dependencies first so CMake can download them in parallel
@@ -419,6 +414,11 @@ endif ()
 
 if(ANDROID)
     list(APPEND GAME_COMPILE_DEFS TARGET_ANDROID=1)
+endif ()
+
+if (DUSK_PACKAGE_INSTALL)
+    include(GNUInstallDirs)
+    list(APPEND GAME_COMPILE_DEFS DUSK_ASSET_DIR=${CMAKE_INSTALL_DATADIR}/dusklight)
 endif ()
 
 # game_debug is for game code files that we know work when compiled with DEBUG=1
