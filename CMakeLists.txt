@@ -142,6 +142,7 @@ option(DUSK_SELECTED_OPT "If on, selected parts of the project will be compiled 
 option(DUSK_MOVIE_SUPPORT "If on, compile against libjpeg-turbo to enable THP file decoding" ON)
 option(DUSK_ENABLE_UPDATE_CHECKER "Enable update checking support" ON)
 option(DUSK_ENABLE_SENTRY_NATIVE "Enable sentry-native crash reporting support" OFF)
+option(DUSK_PACKAGE_INSTALL "Install Dusklight with a Linux-native file structure" OFF)
 set(DUSK_SENTRY_DSN "" CACHE STRING "Sentry DSN")
 set(DUSK_SENTRY_ENVIRONMENT "development" CACHE STRING "Sentry environment")
 
@@ -245,6 +246,11 @@ elseif (MSVC)
         add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:/wo4244>) # narrowing conversion, possible data loss
     endif ()
     add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:/utf-8>)
+
+    if (DUSK_PACKAGE_INSTALL)
+        include(GNUInstallDirs)
+        list(APPEND GAME_COMPILE_DEFS DUSK_ASSET_DIR=${CMAKE_INSTALL_DATADIR}/dusklight)
+    endif ()
 endif ()
 
 
@@ -344,7 +350,7 @@ set(GAME_LIBS aurora::core aurora::gx aurora::gd aurora::si aurora::vi aurora::p
     aurora::card freeverb cxxopts::cxxopts absl::flat_hash_map nlohmann_json::nlohmann_json TracyClient fmt::fmt
     Threads::Threads)
 
-list(APPEND GAME_LIBS libzstd_static)
+list(APPEND GAME_LIBS zstd::libzstd)
 
 if (DUSK_ENABLE_SENTRY_NATIVE)
     list(APPEND GAME_LIBS sentry)
@@ -634,12 +640,20 @@ set(EXTRA_TARGETS "")
 if (TARGET crashpad_handler)
     list(APPEND EXTRA_TARGETS crashpad_handler)
 endif ()
-install(TARGETS ${BINARY_TARGETS} ${EXTRA_TARGETS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+if (DUSK_PACKAGE_INSTALL)
+    install(TARGETS ${BINARY_TARGETS} ${EXTRA_TARGETS} DESTINATION ${CMAKE_INSTALL_BINDIR})
+else()
+    install(TARGETS ${BINARY_TARGETS} ${EXTRA_TARGETS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()
 aurora_install_runtime_dlls(dusklight ${CMAKE_INSTALL_PREFIX})
 if (NOT APPLE)
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_INSTALL_PREFIX})
+    if (DUSK_PACKAGE_INSTALL)
+        install(DIRECTORY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dusklight)
+    else()
+        install(DIRECTORY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_INSTALL_PREFIX})
+    endif()
 endif ()
-if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
+if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo AND NOT DUSK_PACKAGE_INSTALL)
     set(DEBUG_FILES_LIST "")
     foreach (target IN LISTS BINARY_TARGETS EXTRA_TARGETS)
         get_target_output_name(${target} output_name)
