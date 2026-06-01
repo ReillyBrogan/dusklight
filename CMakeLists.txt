@@ -216,7 +216,7 @@ if (DUSK_MOVIE_SUPPORT)
     endif ()
 endif ()
 
-if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # -Wno-multichar: Multi-character constants ('ABCD') are implementation-defined but all compilers
     #   (CW, GCC, Clang, MSVC) encode them identically in big-endian order.
     #   For >4-char literals (which GCC/Clang truncate to int), use the MULTI_CHAR() macro.
