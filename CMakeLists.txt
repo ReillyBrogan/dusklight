@@ -418,7 +418,7 @@ endif ()
 
 if (DUSK_PACKAGE_INSTALL)
     include(GNUInstallDirs)
-    list(APPEND GAME_COMPILE_DEFS DUSK_ASSET_DIR="${CMAKE_INSTALL_FULL_DATADIR}/dusklight")
+    list(APPEND GAME_COMPILE_DEFS DUSK_ASSET_DIR="${CMAKE_INSTALL_FULL_DATADIR}/dusklight/")
 endif ()
 
 # game_debug is for game code files that we know work when compiled with DEBUG=1
